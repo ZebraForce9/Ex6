@@ -24,7 +24,7 @@ def slow_down_audio(audio_data: List[List[int]]) -> List[List[int]]:
     return audio_data
 
 
-def filter_audio(audio_data: List[List[int]]) -> List[List[int]]:
+def low_pass_filter(audio_data: List[List[int]]) -> List[List[int]]:
     new_audio_data = copy.deepcopy(audio_data)
     for i, pair in enumerate(audio_data):
         if i == 0:
