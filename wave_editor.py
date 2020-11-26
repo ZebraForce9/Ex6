@@ -19,5 +19,5 @@ def slow_down_audio(audio_data: List[List[int]]) -> List[List[int]]:
     for i in range(1, new_pairs, 2):
         channel_one = (audio_data[i-1][0] + audio_data[i][0]) // 2
         channel_two = (audio_data[i-1][1] + audio_data[i][1]) // 2
-        audio_data.insert(i, [channel_one, channel_two])
+        audio_data[i:i] = [[channel_one, channel_two]]
     return audio_data
