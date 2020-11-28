@@ -45,90 +45,6 @@ def main() -> None:
             pass
 
 
-def sound_negation(audio_data: List[List[int]]) -> List[List[int]]:
-    """
-    Changes the sample values in the audio data to their opposite number.
-
-    Args:
-        audio_data: A list of audio samples in two channels.
-
-    Returns:
-        The modified list.
-    """
-    new_audio_data: List[List[int]] = []
-
-    for sample in audio_data:
-        new_sample = []
-        for num in sample:
-            new_num = - num
-            new_sample.append(adjust_audio_range(new_num))
-        new_audio_data.append(new_sample)
-    return new_audio_data
-
-
-def adjust_audio_range(num: int) -> int:
-    """
-    Check if a number fits the audio range. Return it if it is, return the max/min of the audio range if not.
-
-    Args:
-        num: A value of a sample we check.
-
-    Returns:
-        The number if it's in the range, max/min value if not.
-    """
-
-    if num > MAX_AUDIO:
-        return MAX_AUDIO
-    if num < MIN_AUDIO:
-        return MIN_AUDIO
-    else:
-        return num
-
-
-def increase_volume(audio_data: List[List[int]]) -> List[List[int]]:
-    """
-    Increase all the samples by 1.2.
-
-    Args:
-        audio_data: A list of audio samples in two channels.
-
-    Returns:
-        The modified list.
-    """
-    new_audio_data: List[List[int]] = []
-
-    for sample in audio_data:
-        new_sample = []
-        for num in sample:
-            new_num = num * 1.2
-            new_sample.append(adjust_audio_range(int(new_num)))
-        new_audio_data.append(new_sample)
-
-    return new_audio_data
-
-
-def decrease_volume(audio_data: List[List[int]]) -> List[List[int]]:
-    """
-    Decrease all the samples by 1.2.
-
-    Args:
-        audio_data: A list of audio samples in two channels.
-
-    Returns:
-        The modified list.
-    """
-    new_audio_data = []
-
-    for sample in audio_data:
-        new_sample = []
-        for num in sample:
-            new_num = num / 1.2
-            new_sample.append(adjust_audio_range(int(new_num)))
-        new_audio_data.append(new_sample)
-
-    return new_audio_data
-
-
 def get_audio_data(filename: str) -> List[List[int]]:
     """
     Get the audio samples from a wav file.
@@ -184,6 +100,90 @@ def slow_down_audio(audio_data: List[List[int]]) -> List[List[int]]:
         channel_2: int = int((audio_data[i - 1][1] + audio_data[i][1]) / 2)
         audio_data[i:i] = [[channel_1, channel_2]]
     return audio_data
+
+
+def adjust_audio_range(num: int) -> int:
+    """
+    Check if a number fits the audio range. Return it if it is, return the max/min of the audio range if not.
+
+    Args:
+        num: A value of a sample we check.
+
+    Returns:
+        The number if it's in the range, max/min value if not.
+    """
+
+    if num > MAX_AUDIO:
+        return MAX_AUDIO
+    if num < MIN_AUDIO:
+        return MIN_AUDIO
+    else:
+        return num
+
+
+def sound_negation(audio_data: List[List[int]]) -> List[List[int]]:
+    """
+    Changes the sample values in the audio data to their opposite number.
+
+    Args:
+        audio_data: A list of audio samples in two channels.
+
+    Returns:
+        The modified list.
+    """
+    new_audio_data: List[List[int]] = []
+
+    for sample in audio_data:
+        new_sample = []
+        for num in sample:
+            new_num = - num
+            new_sample.append(adjust_audio_range(new_num))
+        new_audio_data.append(new_sample)
+    return new_audio_data
+
+
+def increase_volume(audio_data: List[List[int]]) -> List[List[int]]:
+    """
+    Increase all the samples by 1.2.
+
+    Args:
+        audio_data: A list of audio samples in two channels.
+
+    Returns:
+        The modified list.
+    """
+    new_audio_data: List[List[int]] = []
+
+    for sample in audio_data:
+        new_sample = []
+        for num in sample:
+            new_num = num * 1.2
+            new_sample.append(adjust_audio_range(int(new_num)))
+        new_audio_data.append(new_sample)
+
+    return new_audio_data
+
+
+def decrease_volume(audio_data: List[List[int]]) -> List[List[int]]:
+    """
+    Decrease all the samples by 1.2.
+
+    Args:
+        audio_data: A list of audio samples in two channels.
+
+    Returns:
+        The modified list.
+    """
+    new_audio_data = []
+
+    for sample in audio_data:
+        new_sample = []
+        for num in sample:
+            new_num = num / 1.2
+            new_sample.append(adjust_audio_range(int(new_num)))
+        new_audio_data.append(new_sample)
+
+    return new_audio_data
 
 
 def low_pass_filter(audio_data: List[List[int]]) -> List[List[int]]:
