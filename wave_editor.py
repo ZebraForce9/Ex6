@@ -1,5 +1,6 @@
 from wave_helper import *
-from typing import List
+from typing import List, Tuple
+import os
 
 
 MODIFY = "1"
@@ -8,7 +9,7 @@ EXIT = "3"
 MAIN_MENU_OPTIONS = "123"
 MAX_AUDIO = 32767
 MIN_AUDIO = -32768
-MODIFICATION_MESSAGE = ("Selects which modification you would like to preform:\n"
+MODIFICATION_MESSAGE = ("\nSelect which modification you would like to preform:\n"
                         "1.Reverse audio\n"
                         "2.Negate audio\n"
                         "3.Increase playing speed\n"
@@ -28,24 +29,79 @@ def main() -> None:
     """
 
     while True:
-        user_input = input("Choose category:\n1.Modify existing wav file\n"
+        user_input = input("\nChoose category:\n1.Modify existing wav file\n"
                            "2.Compose a tune\n3.Exit program\n")
 
         if user_input not in MAIN_MENU_OPTIONS:
-            print("Your input is not valid, Choose again")
+            print("Your input is not valid, choose again.\n")
             continue
+
         if user_input == MODIFY:
-            option_choice = int(input(MODIFICATION_MESSAGE))
-            pass
+            sample_rate, audio_data = receive_audio_file()
+            while True:
+                option_choice = int(input(MODIFICATION_MESSAGE))
+                if option_choice == 8:  # todo: added
+                    wave_filename = input("Enter file name in which you want to save your data: ")
+                    save_wave(sample_rate, audio_data, wave_filename)
+                    break
+                else:
+                    audio_data = audio_modification(audio_data, option_choice)
 
         if user_input == COMPOSE:
-            pass
+            print("Feature not supported yet.\n")
 
         if user_input == EXIT:
-            pass
+            return
 
 
-def get_audio_data(filename: str) -> List[List[int]]:
+def receive_audio_file() -> Tuple[int, List[List[int]]]:
+    """
+    Get the file path of the wav file from user, check if it exists, and returns the sample rate and audio data.
+
+    Returns:
+
+    """
+
+    while True:
+        wav_file: str = input("Enter a wav file path: ")
+        if not os.path.isfile(wav_file):
+            print("The file does not exist, try again.\n")
+        else:
+            return extract_audio(wav_file)
+
+
+def audio_modification(audio_data: List[List[int]], option_choice: int):
+    """
+    Modify audio data according to user input.
+
+    Args:
+        audio_data: A list of audio samples in two channels.
+        option_choice: The choice of the user.
+
+    Returns:
+        The modified list.
+    """
+
+    if option_choice == 1:
+        return reverse_audio(audio_data)
+    if option_choice == 2:
+        return negate_audio(audio_data)
+    if option_choice == 3:
+        return speed_up_audio(audio_data)
+    if option_choice == 4:
+        return slow_down_audio(audio_data)
+    if option_choice == 5:
+        return increase_volume(audio_data)
+    if option_choice == 6:
+        return decrease_volume(audio_data)
+    if option_choice == 7:
+        return low_pass_filter(audio_data)
+    else:
+        print("Your choice is not valid.")
+        return audio_data  # todo: necessary?
+
+
+def extract_audio(filename: str) -> Tuple[int, List[List[int]]]:
     """
     Get the audio samples from a wav file.
 
@@ -53,9 +109,9 @@ def get_audio_data(filename: str) -> List[List[int]]:
         filename: The path to the wav file.
 
     Returns:
-        A list of audio samples in two channels.
+        A tuple containing the sample rate and a list of the audio samples in two channels.
     """
-    return load_wave(filename)[1]
+    return load_wave(filename)[0], load_wave(filename)[1]
 
 
 def reverse_audio(audio_data: List[List[int]]) -> List[List[int]]:
@@ -121,7 +177,7 @@ def adjust_audio_range(num: int) -> int:
         return num
 
 
-def sound_negation(audio_data: List[List[int]]) -> List[List[int]]:
+def negate_audio(audio_data: List[List[int]]) -> List[List[int]]:
     """
     Changes the sample values in the audio data to their opposite number.
 
@@ -211,3 +267,7 @@ def low_pass_filter(audio_data: List[List[int]]) -> List[List[int]]:
             channel_2 = int((pair[1] + audio_data[i - 1][1] + audio_data[i + 1][1]) / 3)
             new_audio_data.append([channel_1, channel_2])
     return new_audio_data
+
+
+if __name__ == '__main__':
+    main()
