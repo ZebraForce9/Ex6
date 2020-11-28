@@ -39,8 +39,8 @@ def main() -> None:
         if user_input == MODIFY:
             sample_rate, audio_data = receive_audio_file()
             while True:
-                option_choice = int(input(MODIFICATION_MESSAGE))
-                if option_choice == 8:  # todo: added
+                option_choice = input(MODIFICATION_MESSAGE)  # todo: why int?
+                if option_choice == '8':  # todo: added
                     wave_filename = input("Enter file name in which you want to save your data: ")
                     save_wave(sample_rate, audio_data, wave_filename)
                     break
@@ -82,19 +82,19 @@ def audio_modification(audio_data: List[List[int]], option_choice: int):
         The modified list.
     """
 
-    if option_choice == 1:
+    if option_choice == '1':
         return reverse_audio(audio_data)
-    if option_choice == 2:
+    if option_choice == '2':
         return negate_audio(audio_data)
-    if option_choice == 3:
+    if option_choice == '3':
         return speed_up_audio(audio_data)
-    if option_choice == 4:
+    if option_choice == '4':
         return slow_down_audio(audio_data)
-    if option_choice == 5:
+    if option_choice == '5':
         return increase_volume(audio_data)
-    if option_choice == 6:
+    if option_choice == '6':
         return decrease_volume(audio_data)
-    if option_choice == 7:
+    if option_choice == '7':
         return low_pass_filter(audio_data)
     else:
         print("Your choice is not valid.")
