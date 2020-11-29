@@ -1,14 +1,15 @@
 from wave_helper import *
 from typing import List, Tuple
 import os
+from math import pi, sin
 
 
 MODIFY = "1"
 COMPOSE = "2"
 EXIT = "3"
 MAIN_MENU_OPTIONS = "123"
-MAX_AUDIO = 32767
-MIN_AUDIO = -32768
+MAX_VOLUME = 32767
+MIN_VOLUME = -32768
 MODIFICATION_MESSAGE = ("\nSelect which modification you would like to preform:\n"
                         "1.Reverse audio\n"
                         "2.Negate audio\n"
@@ -17,7 +18,9 @@ MODIFICATION_MESSAGE = ("\nSelect which modification you would like to preform:\
                         "5.Increase volume\n"
                         "6.Decrease volume\n"
                         "7.Low pass filter\n"
-                        "8.Exit to Main Menu\n")
+                        "8.Save and exit to Main Menu\n")
+frequencies = {'A': 440, 'B': 494, 'C': 523, 'D': 587, 'E': 659, 'F': 698, 'G': 784}
+SAMPLE_RATE = 2000
 
 
 def main() -> None:
@@ -39,8 +42,8 @@ def main() -> None:
         if user_input == MODIFY:
             sample_rate, audio_data = receive_audio_file()
             while True:
-                option_choice = input(MODIFICATION_MESSAGE)  # todo: why int?
-                if option_choice == '8':  # todo: added
+                option_choice: str = input(MODIFICATION_MESSAGE)
+                if option_choice == '8':
                     wave_filename = input("Enter file name in which you want to save your data: ")
                     save_wave(sample_rate, audio_data, wave_filename)
                     break
@@ -48,10 +51,45 @@ def main() -> None:
                     audio_data = audio_modification(audio_data, option_choice)
 
         if user_input == COMPOSE:
-            print("Feature not supported yet.\n")
+            notes_file = input('Please enter notes file: ')
+            notes = get_notes(notes_file)
+            audio_data = compose(notes)
+            wave_filename = input("Enter file name in which you want to save your data: ")
+            save_wave(SAMPLE_RATE, audio_data, wave_filename)
+            break
 
         if user_input == EXIT:
             return
+
+
+def get_notes(filename):
+    with open(filename) as notes_file:
+        return notes_file.read()
+
+
+def compose(notes):
+    audio_data = []
+    for char in notes:
+        if char.isalpha():
+            note = char
+        elif char.isnumeric():
+            duration = int(char) * 125
+            get_samples(note, duration, audio_data)
+    return audio_data
+
+
+def get_samples(note, duration, audio_data):
+    note_samples = []
+    for i in range(duration):
+        sample = calculate_sample(frequencies[note], i)
+        note_samples.append(sample)
+    audio_data.extend(note_samples)
+
+
+def calculate_sample(frequency, index):
+    samples_per_cycle = SAMPLE_RATE / frequency
+    sample_value = int(MAX_VOLUME * sin(pi * 2 * (index / samples_per_cycle)))
+    return [sample_value, sample_value]
 
 
 def receive_audio_file() -> Tuple[int, List[List[int]]]:
@@ -81,24 +119,30 @@ def audio_modification(audio_data: List[List[int]], option_choice: int):
     Returns:
         The modified list.
     """
-
     if option_choice == '1':
+        print('The audio has been reversed.')
         return reverse_audio(audio_data)
     if option_choice == '2':
+        print('The audio has been negated.')
         return negate_audio(audio_data)
     if option_choice == '3':
+        print('The audio has been sped up.')
         return speed_up_audio(audio_data)
     if option_choice == '4':
+        print('The audio has been slowed down.')
         return slow_down_audio(audio_data)
     if option_choice == '5':
+        print('The volume has been increased.')
         return increase_volume(audio_data)
     if option_choice == '6':
+        print('The volume has been decreased.')
         return decrease_volume(audio_data)
     if option_choice == '7':
+        print('The audio has been filtered.')
         return low_pass_filter(audio_data)
     else:
         print("Your choice is not valid.")
-        return audio_data  # todo: necessary?
+        return audio_data
 
 
 def extract_audio(filename: str) -> Tuple[int, List[List[int]]]:
@@ -169,10 +213,10 @@ def adjust_audio_range(num: int) -> int:
         The number if it's in the range, max/min value if not.
     """
 
-    if num > MAX_AUDIO:
-        return MAX_AUDIO
-    if num < MIN_AUDIO:
-        return MIN_AUDIO
+    if num > MAX_VOLUME:
+        return MAX_VOLUME
+    if num < MIN_VOLUME:
+        return MIN_VOLUME
     else:
         return num
 
