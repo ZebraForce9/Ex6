@@ -19,7 +19,7 @@ MODIFICATION_MESSAGE = ("\nSelect which modification you would like to preform:\
                         "6.Decrease volume\n"
                         "7.Low pass filter\n"
                         "8.Save and exit to Main Menu\n")
-frequencies = {'A': 440, 'B': 494, 'C': 523, 'D': 587, 'E': 659, 'F': 698, 'G': 784}
+frequencies = {'A': 440, 'B': 494, 'C': 523, 'D': 587, 'E': 659, 'F': 698, 'G': 784, 'Q': 0}
 SAMPLE_RATE = 2000
 
 
@@ -32,6 +32,8 @@ def main() -> None:
     """
 
     while True:
+        composed = False
+
         user_input = input("\nChoose category:\n1.Modify existing wav file\n"
                            "2.Compose a tune\n3.Exit program\n")
 
@@ -39,32 +41,43 @@ def main() -> None:
             print("Your input is not valid, choose again.\n")
             continue
 
+        if user_input == COMPOSE:
+            # notes_file = input('Please enter notes file: ')
+            notes = get_notes()
+            audio_data = compose(notes)
+            # wave_filename = input("Enter file name in which you want to save your data: ")
+            # save_wave(SAMPLE_RATE, audio_data, wave_filename)
+            user_input = MODIFY
+            composed = True
+
         if user_input == MODIFY:
-            sample_rate, audio_data = receive_audio_file()
+            if not composed:
+                sample_rate, audio_data = receive_audio_file()
+
             while True:
                 option_choice: str = input(MODIFICATION_MESSAGE)
                 if option_choice == '8':
                     wave_filename = input("Enter file name in which you want to save your data: ")
-                    save_wave(sample_rate, audio_data, wave_filename)
+                    if composed:
+                        save_wave(SAMPLE_RATE, audio_data, wave_filename)
+                    else:
+                        save_wave(sample_rate, audio_data, wave_filename)
                     break
                 else:
                     audio_data = audio_modification(audio_data, option_choice)
-
-        if user_input == COMPOSE:
-            notes_file = input('Please enter notes file: ')
-            notes = get_notes(notes_file)
-            audio_data = compose(notes)
-            wave_filename = input("Enter file name in which you want to save your data: ")
-            save_wave(SAMPLE_RATE, audio_data, wave_filename)
-            break
 
         if user_input == EXIT:
             return
 
 
-def get_notes(filename):
-    with open(filename) as notes_file:
-        return notes_file.read()
+def get_notes():
+    while True:
+        notes_file = input('Please enter notes file: ')
+        if not os.path.isfile(notes_file):
+            print("The file does not exist, try again.\n")
+        else:
+            with open(notes_file) as notes_file:
+                return notes_file.read()
 
 
 def compose(notes):
@@ -87,6 +100,8 @@ def get_samples(note, duration, audio_data):
 
 
 def calculate_sample(frequency, index):
+    if frequency == 0:
+        return [0, 0]
     samples_per_cycle = SAMPLE_RATE / frequency
     sample_value = int(MAX_VOLUME * sin(pi * 2 * (index / samples_per_cycle)))
     return [sample_value, sample_value]
@@ -94,7 +109,7 @@ def calculate_sample(frequency, index):
 
 def receive_audio_file() -> Tuple[int, List[List[int]]]:
     """
-    Get the file path of the wav file from user, check if it exists, and returns the sample rate and audio data.
+    Get the file path of the wav file from user, check if it exists, and return the sample rate and audio data.
 
     Returns:
 
@@ -240,6 +255,7 @@ def negate_audio(audio_data: List[List[int]]) -> List[List[int]]:
             new_sample.append(adjust_audio_range(new_num))
         new_audio_data.append(new_sample)
     return new_audio_data
+
 
 
 def increase_volume(audio_data: List[List[int]]) -> List[List[int]]:
