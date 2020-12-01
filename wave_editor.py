@@ -42,11 +42,8 @@ def main() -> None:
             continue
 
         if user_input == COMPOSE:
-            # notes_file = input('Please enter notes file: ')
             notes = get_notes()
             audio_data = compose(notes)
-            # wave_filename = input("Enter file name in which you want to save your data: ")
-            # save_wave(SAMPLE_RATE, audio_data, wave_filename)
             user_input = MODIFY
             composed = True
 
@@ -70,7 +67,13 @@ def main() -> None:
             return
 
 
-def get_notes():
+def get_notes() -> str:
+    """
+    Get the composition instructions from a file.
+
+    Returns:
+        The composition instructions.
+    """
     while True:
         notes_file = input('Please enter notes file: ')
         if not os.path.isfile(notes_file):
@@ -80,8 +83,17 @@ def get_notes():
                 return notes_file.read()
 
 
-def compose(notes):
-    audio_data = []
+def compose(notes: str) -> List[List[int]]:
+    """
+    Create audio data from composition instructions.
+
+    Args:
+        notes: The composition instructions.
+
+    Returns:
+        A list of audio samples in two channels.
+    """
+    audio_data: List[List[int]] = []
     for char in notes:
         if char.isalpha():
             note = char
@@ -91,7 +103,18 @@ def compose(notes):
     return audio_data
 
 
-def get_samples(note, duration, audio_data):
+def get_samples(note: str, duration: int, audio_data: List[List[int]]) -> None:
+    """
+    Create and all the samples of a note into the audio data.
+
+    Args:
+        note: The note we check.
+        duration: Number of samples.
+        audio_data: A list of audio samples in two channels.
+
+    Returns:
+        None
+    """
     note_samples = []
     for i in range(duration):
         sample = calculate_sample(frequencies[note], i)
@@ -99,7 +122,17 @@ def get_samples(note, duration, audio_data):
     audio_data.extend(note_samples)
 
 
-def calculate_sample(frequency, index):
+def calculate_sample(frequency: int, index: int) -> List[int]:
+    """
+    Calculate the value a sample.
+
+    Args:
+        frequency: The frequency of the note for which we get the sample.
+        index: The index of the sample in the note audio data.
+
+    Returns:
+        A sample.
+    """
     if frequency == 0:
         return [0, 0]
     samples_per_cycle = SAMPLE_RATE / frequency
@@ -112,18 +145,15 @@ def receive_audio_file() -> Tuple[int, List[List[int]]]:
     Get the file path of the wav file from user, check if it exists, and return the sample rate and audio data.
 
     Returns:
-
+        A list of audio samples in two channels.
     """
 
     while True:
         wav_file: str = input("Enter a wav file path: ")
-        if not os.path.isfile(wav_file):
-            print("The file does not exist, try again.\n")
-        else:
-            return extract_audio(wav_file)
+        return extract_audio(wav_file)
 
 
-def audio_modification(audio_data: List[List[int]], option_choice: int):
+def audio_modification(audio_data: List[List[int]], option_choice: str) -> List[List[int]]:
     """
     Modify audio data according to user input.
 
@@ -255,7 +285,6 @@ def negate_audio(audio_data: List[List[int]]) -> List[List[int]]:
             new_sample.append(adjust_audio_range(new_num))
         new_audio_data.append(new_sample)
     return new_audio_data
-
 
 
 def increase_volume(audio_data: List[List[int]]) -> List[List[int]]:
